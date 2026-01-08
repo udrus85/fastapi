@@ -1,2 +1,2 @@
-from app.models.models import User, Task, Category, TaskPriority, TaskStatus
+from app.models.models import User, Task, Category, Tag, TaskPriority, TaskStatus
 

@@ -12,7 +12,10 @@ from app.crud.task import (
     create_task,
     update_task,
     delete_task,
-    get_tasks_stats
+    get_tasks_stats,
+    toggle_favorite,
+    get_upcoming_reminders,
+    get_overdue_tasks
 )
 from app.crud.category import (
     get_category,
@@ -20,5 +23,14 @@ from app.crud.category import (
     create_category,
     update_category,
     delete_category
+)
+from app.crud.tag import (
+    get_tag,
+    get_tags,
+    get_tag_by_name,
+    create_tag,
+    update_tag,
+    delete_tag,
+    get_tags_by_ids
 )
 

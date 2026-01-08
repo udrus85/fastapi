@@ -1,9 +1,18 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum, Table, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
 
 from app.core.database import Base
+
+
+# Таблица связи многие-ко-многим для задач и тегов
+task_tags = Table(
+    'task_tags',
+    Base.metadata,
+    Column('task_id', Integer, ForeignKey('tasks.id'), primary_key=True),
+    Column('tag_id', Integer, ForeignKey('tags.id'), primary_key=True)
+)
 
 
 class TaskPriority(str, enum.Enum):
@@ -37,6 +46,7 @@ class User(Base):
     # Связи
     tasks = relationship("Task", back_populates="owner", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
+    tags = relationship("Tag", back_populates="owner", cascade="all, delete-orphan")
 
 
 class Category(Base):
@@ -60,11 +70,17 @@ class Task(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
-    description = Column(String(1000), nullable=True)
+    description = Column(Text, nullable=True)
     priority = Column(Enum(TaskPriority), default=TaskPriority.MEDIUM)
     status = Column(Enum(TaskStatus), default=TaskStatus.TODO)
     due_date = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
+
+    # Новые поля
+    reminder_at = Column(DateTime, nullable=True)  # Время напоминания
+    is_favorite = Column(Boolean, default=False)   # Избранное
+    estimated_hours = Column(Integer, nullable=True)  # Оценка времени в часах
+    notes = Column(Text, nullable=True)  # Дополнительные заметки
 
     # Внешние ключи
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -77,3 +93,19 @@ class Task(Base):
     # Связи
     owner = relationship("User", back_populates="tasks")
     category = relationship("Category", back_populates="tasks")
+    tags = relationship("Tag", secondary=task_tags, back_populates="tasks")
+
+
+class Tag(Base):
+    """Модель тега"""
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), nullable=False)
+    color = Column(String(7), default="#9b59b6")  # HEX цвет
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Связи
+    owner = relationship("User", back_populates="tags")
+    tasks = relationship("Task", secondary=task_tags, back_populates="tags")
