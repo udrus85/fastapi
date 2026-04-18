@@ -1,13 +1,36 @@
-# main.py
-from fastapi import FastAPI, Depends
-from routers import tasks, users, auth
+from fastapi import FastAPI
+from fastapi.openapi.models import APIKey, APIKeyIn
 
 app = FastAPI(
-    title="Your API",
-    description="Your API description",
+    title="Your API Title",
+    description="Your API Description",
     version="1.0.0",
+    openapi_tags=[
+        {"name": "tag_name", "description": "Tag description"},
+    ],
 )
 
-app.include_router(tasks.router)
-app.include_router(users.router)
-app.include_router(auth.router)
+# Define a security scheme
+app.openapi_schema = {
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Your API Title",
+        "version": "1.0.0",
+        "description": "Your API Description"
+    },
+    "paths": {},
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+}
+
+# Apply Bearer token security scheme
+@app.get("/secure-endpoint", tags=["tag_name"], security=[{"BearerAuth": []}])
+def secure_endpoint():
+    return {"message": "This is a secured endpoint"}
