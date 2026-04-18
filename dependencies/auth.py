@@ -9,7 +9,7 @@ from database import get_db
 from utils.security import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/auth/login"
+    tokenUrl="auth/login"
 )
 
 
